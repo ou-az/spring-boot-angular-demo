@@ -1,0 +1,57 @@
+.notifications-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+  width: 350px;
+  max-width: 90%;
+}
+
+.notification {
+  position: relative;
+  margin-bottom: 10px;
+  padding: 15px 35px 15px 15px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  
+  .btn-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    filter: invert(1);
+    opacity: 0.7;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+  
+  i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+  }
+}
+
+.notification-success {
+  background-color: var(--success-color);
+}
+
+.notification-info {
+  background-color: var(--info-color);
+}
+
+.notification-warning {
+  background-color: var(--warning-color);
+  color: #212529;
+  
+  .btn-close {
+    filter: none;
+  }
+}
+
+.notification-error {
+  background-color: var(--danger-color);
+}

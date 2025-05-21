@@ -1,0 +1,8 @@
+<div [ngClass]="{'spinner-overlay': overlay}" class="spinner-container">
+  <div class="spinner-border" 
+       [ngClass]="{'spinner-border-sm': size === 'sm', 'spinner-border-lg': size === 'lg'}"
+       [ngStyle]="{'color': color === 'primary' ? 'var(--primary-color)' : color}"
+       role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>

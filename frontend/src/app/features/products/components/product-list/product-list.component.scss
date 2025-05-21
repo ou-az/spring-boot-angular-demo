@@ -1,0 +1,38 @@
+// Custom styles for product list
+.table {
+  th {
+    font-weight: 600;
+  }
+
+  .badge {
+    font-size: 0.85rem;
+    padding: 0.35em 0.65em;
+  }
+
+  .btn-group {
+    .btn {
+      margin-right: 4px;
+      
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+// Responsive tweaks
+@media (max-width: 768px) {
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    
+    .btn {
+      margin-right: 0;
+      margin-bottom: 4px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
