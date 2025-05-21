@@ -13,8 +13,8 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-              Home
+            <a class="nav-link" routerLink="/about" routerLinkActive="active">
+              About
             </a>
           </li>
           <li class="nav-item">
@@ -25,8 +25,8 @@
         </ul>
         
         <div class="d-flex">
-          <a routerLink="/login" class="btn btn-outline-light">
-            <i class="bi bi-person-circle me-1"></i> Login
+          <a routerLink="/" class="btn btn-outline-light" routerLinkActive="d-none" [routerLinkActiveOptions]="{exact: true}">
+            <i class="bi bi-person-circle me-1"></i> Sign In
           </a>
         </div>
       </div>
