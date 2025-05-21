@@ -1,0 +1,210 @@
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { of } from 'rxjs';
+import { delay, tap } from 'rxjs/operators';
+
+@Component({
+  selector: 'app-loan-application',
+  templateUrl: './loan-application.component.html',
+  styleUrls: ['./loan-application.component.scss']
+})
+export class LoanApplicationComponent implements OnInit {
+  loanApplicationForm!: FormGroup;
+  currentStep = 1;
+  totalSteps = 4;
+  isSubmitting = false;
+
+  propertyTypes = [
+    { value: 'single_family', label: 'Single Family Home' },
+    { value: 'condo', label: 'Condominium' },
+    { value: 'townhouse', label: 'Townhouse' },
+    { value: 'multi_family', label: 'Multi-Family Home' },
+    { value: 'manufactured', label: 'Manufactured Home' }
+  ];
+
+  loanPurposes = [
+    { value: 'purchase', label: 'Purchase' },
+    { value: 'refinance', label: 'Refinance' },
+    { value: 'cash_out_refinance', label: 'Cash-Out Refinance' },
+    { value: 'construction', label: 'Construction' }
+  ];
+
+  loanTypes = [
+    { value: 'conventional', label: 'Conventional' },
+    { value: 'fha', label: 'FHA' },
+    { value: 'va', label: 'VA' },
+    { value: 'usda', label: 'USDA' },
+    { value: 'jumbo', label: 'Jumbo' }
+  ];
+
+  creditScoreRanges = [
+    { value: '760-850', label: 'Excellent (760-850)' },
+    { value: '700-759', label: 'Very Good (700-759)' },
+    { value: '660-699', label: 'Good (660-699)' },
+    { value: '620-659', label: 'Fair (620-659)' },
+    { value: 'below_620', label: 'Poor (Below 620)' }
+  ];
+
+  constructor(
+    private fb: FormBuilder,
+    private router: Router
+  ) { }
+
+  ngOnInit(): void {
+    this.initializeForm();
+  }
+
+  initializeForm(): void {
+    this.loanApplicationForm = this.fb.group({
+      // Step 1: Personal Information
+      firstName: ['', [Validators.required]],
+      lastName: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern('^\\d{3}-\\d{3}-\\d{4}$')]],
+      dateOfBirth: ['', [Validators.required]],
+      ssn: ['', [Validators.required, Validators.pattern('^\\d{3}-\\d{2}-\\d{4}$')]],
+
+      // Step 2: Property Information
+      propertyAddress: ['', [Validators.required]],
+      propertyCity: ['', [Validators.required]],
+      propertyState: ['', [Validators.required]],
+      propertyZip: ['', [Validators.required, Validators.pattern('^\\d{5}$')]],
+      propertyType: ['', [Validators.required]],
+      propertyValue: [null, [Validators.required, Validators.min(1)]],
+
+      // Step 3: Loan Information
+      loanPurpose: ['purchase', [Validators.required]],
+      loanType: ['', [Validators.required]],
+      loanTerm: [360, [Validators.required]],
+      loanAmount: [null, [Validators.required, Validators.min(1)]],
+      downPayment: [null, [Validators.required, Validators.min(0)]],
+
+      // Step 4: Financial Information
+      annualIncome: [null, [Validators.required, Validators.min(1)]],
+      employmentStatus: ['', [Validators.required]],
+      employerName: ['', [Validators.required]],
+      yearsAtJob: [null, [Validators.required, Validators.min(0)]],
+      creditScoreRange: ['', [Validators.required]],
+      monthlyDebts: [null, [Validators.required, Validators.min(0)]]
+    });
+  }
+
+  getStepTitle(): string {
+    switch (this.currentStep) {
+      case 1: return 'Personal Information';
+      case 2: return 'Property Information';
+      case 3: return 'Loan Information';
+      case 4: return 'Financial Information';
+      default: return '';
+    }
+  }
+
+  isCurrentStepValid(): boolean {
+    const formControls = this.loanApplicationForm.controls;
+    
+    switch (this.currentStep) {
+      case 1:
+        return [
+          'firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'ssn'
+        ].every(control => formControls[control as keyof typeof formControls].valid);
+      case 2:
+        return [
+          'propertyAddress', 'propertyCity', 'propertyState', 'propertyZip', 'propertyType', 'propertyValue'
+        ].every(control => formControls[control as keyof typeof formControls].valid);
+      case 3:
+        return [
+          'loanPurpose', 'loanType', 'loanTerm', 'loanAmount', 'downPayment'
+        ].every(control => formControls[control as keyof typeof formControls].valid);
+      case 4:
+        return [
+          'annualIncome', 'employmentStatus', 'employerName', 'yearsAtJob', 'creditScoreRange', 'monthlyDebts'
+        ].every(control => formControls[control as keyof typeof formControls].valid);
+      default:
+        return false;
+    }
+  }
+
+  nextStep(): void {
+    if (this.currentStep < this.totalSteps && this.isCurrentStepValid()) {
+      this.currentStep++;
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  goBack(): void {
+    this.router.navigate(['/loans/dashboard']);
+  }
+
+  // Financial calculation methods
+  calculateLTV(): number {
+    const loanAmount = this.loanApplicationForm.get('loanAmount')?.value || 0;
+    const propertyValue = this.loanApplicationForm.get('propertyValue')?.value || 1;
+    return (loanAmount / propertyValue) * 100;
+  }
+
+  calculateMonthlyPayment(principal: number, rate: number, term: number): number {
+    // Convert annual interest rate to monthly and decimal form
+    const monthlyRate = rate / 12;
+    // Calculate monthly payment using mortgage formula
+    return principal * monthlyRate * Math.pow(1 + monthlyRate, term) / (Math.pow(1 + monthlyRate, term) - 1);
+  }
+
+  calculateDTI(): number {
+    const annualIncome = this.loanApplicationForm.get('annualIncome')?.value || 1;
+    const monthlyIncome = annualIncome / 12;
+    const monthlyDebts = this.loanApplicationForm.get('monthlyDebts')?.value || 0;
+    const loanAmount = this.loanApplicationForm.get('loanAmount')?.value || 0;
+    const loanTerm = this.loanApplicationForm.get('loanTerm')?.value || 360;
+    
+    // Estimated monthly mortgage payment (principal + interest) at 5% interest rate
+    const monthlyMortgage = this.calculateMonthlyPayment(loanAmount, 0.05, loanTerm);
+    
+    // Calculate Debt-to-Income ratio
+    return ((monthlyDebts + monthlyMortgage) / monthlyIncome) * 100;
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  }
+
+  onSubmit(): void {
+    if (this.loanApplicationForm.valid) {
+      this.isSubmitting = true;
+      
+      // In a real application, you would send this data to your backend API
+      // For this demo, we'll simulate an API call with a delay
+      of(this.loanApplicationForm.value).pipe(
+        delay(2000),
+        tap(formData => {
+          console.log('Loan application submitted:', formData);
+          // Store application ID in local storage to retrieve in dashboard
+          const applications = JSON.parse(localStorage.getItem('loan_applications') || '[]');
+          const newApplication = {
+            id: Math.floor(Math.random() * 10000),
+            applicantName: `${formData.firstName} ${formData.lastName}`,
+            loanAmount: formData.loanAmount,
+            loanType: formData.loanType,
+            propertyAddress: formData.propertyAddress,
+            applicationDate: new Date().toISOString(),
+            status: 'Pending Review',
+            ...formData
+          };
+          
+          applications.push(newApplication);
+          localStorage.setItem('loan_applications', JSON.stringify(applications));
+          
+          this.isSubmitting = false;
+          this.router.navigate(['/loans/dashboard'], {
+            queryParams: { success: true, applicationId: newApplication.id }
+          });
+        })
+      ).subscribe();
+    }
+  }
+}

@@ -1,0 +1,351 @@
+<div class="loan-application-container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <button class="btn btn-sm btn-outline-secondary" (click)="goBack()">
+        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+      </button>
+      <h2 class="mt-2">Mortgage Loan Application</h2>
+    </div>
+    <div class="progress-indicator">
+      <span class="step-text">Step {{ currentStep }} of {{ totalSteps }}: {{ getStepTitle() }}</span>
+      <div class="progress" style="height: 8px; width: 200px;">
+        <div class="progress-bar" [style.width.%]="(currentStep / totalSteps) * 100"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <form [formGroup]="loanApplicationForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Step 1: Personal Information -->
+        <div class="step-content" *ngIf="currentStep === 1">
+          <h4 class="mb-4">Personal Information</h4>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="firstName" class="form-label">First Name</label>
+              <input type="text" id="firstName" formControlName="firstName" class="form-control" 
+                [ngClass]="{'is-invalid': loanApplicationForm.get('firstName')?.invalid && loanApplicationForm.get('firstName')?.touched}">
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('firstName')?.invalid && loanApplicationForm.get('firstName')?.touched">
+                First name is required
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="lastName" class="form-label">Last Name</label>
+              <input type="text" id="lastName" formControlName="lastName" class="form-control"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('lastName')?.invalid && loanApplicationForm.get('lastName')?.touched}">
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('lastName')?.invalid && loanApplicationForm.get('lastName')?.touched">
+                Last name is required
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label">Email Address</label>
+              <input type="email" id="email" formControlName="email" class="form-control"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('email')?.invalid && loanApplicationForm.get('email')?.touched}">
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('email')?.invalid && loanApplicationForm.get('email')?.touched">
+                Please enter a valid email address
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="phone" class="form-label">Phone Number</label>
+              <input type="tel" id="phone" formControlName="phone" class="form-control" placeholder="XXX-XXX-XXXX"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('phone')?.invalid && loanApplicationForm.get('phone')?.touched}">
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('phone')?.invalid && loanApplicationForm.get('phone')?.touched">
+                Phone number is required
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="dateOfBirth" class="form-label">Date of Birth</label>
+              <input type="date" id="dateOfBirth" formControlName="dateOfBirth" class="form-control"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('dateOfBirth')?.invalid && loanApplicationForm.get('dateOfBirth')?.touched}">
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('dateOfBirth')?.invalid && loanApplicationForm.get('dateOfBirth')?.touched">
+                Date of birth is required
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="ssn" class="form-label">Social Security Number</label>
+              <input type="text" id="ssn" formControlName="ssn" class="form-control" placeholder="XXX-XX-XXXX"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('ssn')?.invalid && loanApplicationForm.get('ssn')?.touched}">
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('ssn')?.invalid && loanApplicationForm.get('ssn')?.touched">
+                Please enter a valid SSN in format XXX-XX-XXXX
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Property Information -->
+        <div class="step-content" *ngIf="currentStep === 2">
+          <h4 class="mb-4">Property Information</h4>
+          
+          <div class="row">
+            <div class="col-md-12 mb-3">
+              <label for="propertyAddress" class="form-label">Property Address</label>
+              <input type="text" id="propertyAddress" formControlName="propertyAddress" class="form-control"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('propertyAddress')?.invalid && loanApplicationForm.get('propertyAddress')?.touched}">
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('propertyAddress')?.invalid && loanApplicationForm.get('propertyAddress')?.touched">
+                Property address is required
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-5 mb-3">
+              <label for="propertyCity" class="form-label">City</label>
+              <input type="text" id="propertyCity" formControlName="propertyCity" class="form-control"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('propertyCity')?.invalid && loanApplicationForm.get('propertyCity')?.touched}">
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('propertyCity')?.invalid && loanApplicationForm.get('propertyCity')?.touched">
+                City is required
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="propertyState" class="form-label">State</label>
+              <input type="text" id="propertyState" formControlName="propertyState" class="form-control"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('propertyState')?.invalid && loanApplicationForm.get('propertyState')?.touched}">
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('propertyState')?.invalid && loanApplicationForm.get('propertyState')?.touched">
+                State is required
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label for="propertyZip" class="form-label">ZIP Code</label>
+              <input type="text" id="propertyZip" formControlName="propertyZip" class="form-control"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('propertyZip')?.invalid && loanApplicationForm.get('propertyZip')?.touched}">
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('propertyZip')?.invalid && loanApplicationForm.get('propertyZip')?.touched">
+                Please enter a valid 5-digit ZIP code
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="propertyType" class="form-label">Property Type</label>
+              <select id="propertyType" formControlName="propertyType" class="form-select"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('propertyType')?.invalid && loanApplicationForm.get('propertyType')?.touched}">
+                <option value="">Select Property Type</option>
+                <option *ngFor="let type of propertyTypes" [value]="type.value">{{ type.label }}</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('propertyType')?.invalid && loanApplicationForm.get('propertyType')?.touched">
+                Property type is required
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="propertyValue" class="form-label">Estimated Property Value</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" id="propertyValue" formControlName="propertyValue" class="form-control"
+                  [ngClass]="{'is-invalid': loanApplicationForm.get('propertyValue')?.invalid && loanApplicationForm.get('propertyValue')?.touched}">
+                <div class="invalid-feedback" *ngIf="loanApplicationForm.get('propertyValue')?.invalid && loanApplicationForm.get('propertyValue')?.touched">
+                  Property value must be greater than 0
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Loan Information -->
+        <div class="step-content" *ngIf="currentStep === 3">
+          <h4 class="mb-4">Loan Information</h4>
+          
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="loanPurpose" class="form-label">Loan Purpose</label>
+              <select id="loanPurpose" formControlName="loanPurpose" class="form-select"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('loanPurpose')?.invalid && loanApplicationForm.get('loanPurpose')?.touched}">
+                <option *ngFor="let purpose of loanPurposes" [value]="purpose.value">{{ purpose.label }}</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('loanPurpose')?.invalid && loanApplicationForm.get('loanPurpose')?.touched">
+                Loan purpose is required
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="loanType" class="form-label">Loan Type</label>
+              <select id="loanType" formControlName="loanType" class="form-select"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('loanType')?.invalid && loanApplicationForm.get('loanType')?.touched}">
+                <option value="">Select Loan Type</option>
+                <option *ngFor="let type of loanTypes" [value]="type.value">{{ type.label }}</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('loanType')?.invalid && loanApplicationForm.get('loanType')?.touched">
+                Loan type is required
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="loanTerm" class="form-label">Loan Term</label>
+              <select id="loanTerm" formControlName="loanTerm" class="form-select"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('loanTerm')?.invalid && loanApplicationForm.get('loanTerm')?.touched}">
+                <option [value]="360">30 Years</option>
+                <option [value]="240">20 Years</option>
+                <option [value]="180">15 Years</option>
+                <option [value]="120">10 Years</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('loanTerm')?.invalid && loanApplicationForm.get('loanTerm')?.touched">
+                Loan term is required
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="loanAmount" class="form-label">Loan Amount</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" id="loanAmount" formControlName="loanAmount" class="form-control"
+                  [ngClass]="{'is-invalid': loanApplicationForm.get('loanAmount')?.invalid && loanApplicationForm.get('loanAmount')?.touched}">
+                <div class="invalid-feedback" *ngIf="loanApplicationForm.get('loanAmount')?.invalid && loanApplicationForm.get('loanAmount')?.touched">
+                  Loan amount must be greater than 0
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="downPayment" class="form-label">Down Payment</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" id="downPayment" formControlName="downPayment" class="form-control"
+                  [ngClass]="{'is-invalid': loanApplicationForm.get('downPayment')?.invalid && loanApplicationForm.get('downPayment')?.touched}">
+                <div class="invalid-feedback" *ngIf="loanApplicationForm.get('downPayment')?.invalid && loanApplicationForm.get('downPayment')?.touched">
+                  Down payment must be a valid amount
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Loan Calculator Section -->
+          <div class="alert alert-info mt-3" *ngIf="loanApplicationForm.get('loanAmount')?.valid && loanApplicationForm.get('propertyValue')?.valid">
+            <h5>Loan Estimate</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <p class="mb-1"><strong>Loan-to-Value Ratio (LTV):</strong> {{ calculateLTV() | number:'1.1-1' }}%</p>
+                <p class="mb-1"><strong>Estimated Monthly Payment:</strong> {{ formatCurrency(calculateMonthlyPayment(loanApplicationForm.get('loanAmount')?.value, 0.05, loanApplicationForm.get('loanTerm')?.value)) }}</p>
+              </div>
+              <div class="col-md-6">
+                <p class="mb-1"><strong>Interest Rate (estimated):</strong> 5.0%</p>
+                <p class="mb-1"><strong>Annual Property Tax (estimated):</strong> {{ formatCurrency(loanApplicationForm.get('propertyValue')?.value * 0.0125) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Financial Information -->
+        <div class="step-content" *ngIf="currentStep === 4">
+          <h4 class="mb-4">Financial Information</h4>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="annualIncome" class="form-label">Annual Income</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" id="annualIncome" formControlName="annualIncome" class="form-control"
+                  [ngClass]="{'is-invalid': loanApplicationForm.get('annualIncome')?.invalid && loanApplicationForm.get('annualIncome')?.touched}">
+                <div class="invalid-feedback" *ngIf="loanApplicationForm.get('annualIncome')?.invalid && loanApplicationForm.get('annualIncome')?.touched">
+                  Annual income must be greater than 0
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="employmentStatus" class="form-label">Employment Status</label>
+              <select id="employmentStatus" formControlName="employmentStatus" class="form-select"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('employmentStatus')?.invalid && loanApplicationForm.get('employmentStatus')?.touched}">
+                <option value="">Select Employment Status</option>
+                <option value="Full-Time">Full-Time</option>
+                <option value="Part-Time">Part-Time</option>
+                <option value="Self-Employed">Self-Employed</option>
+                <option value="Retired">Retired</option>
+                <option value="Other">Other</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('employmentStatus')?.invalid && loanApplicationForm.get('employmentStatus')?.touched">
+                Employment status is required
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-8 mb-3">
+              <label for="employerName" class="form-label">Employer Name</label>
+              <input type="text" id="employerName" formControlName="employerName" class="form-control"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('employerName')?.invalid && loanApplicationForm.get('employerName')?.touched}">
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('employerName')?.invalid && loanApplicationForm.get('employerName')?.touched">
+                Employer name is required
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="yearsAtJob" class="form-label">Years at Current Job</label>
+              <input type="number" id="yearsAtJob" formControlName="yearsAtJob" class="form-control"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('yearsAtJob')?.invalid && loanApplicationForm.get('yearsAtJob')?.touched}">
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('yearsAtJob')?.invalid && loanApplicationForm.get('yearsAtJob')?.touched">
+                Years at job must be a valid number
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="creditScoreRange" class="form-label">Credit Score Range</label>
+              <select id="creditScoreRange" formControlName="creditScoreRange" class="form-select"
+                [ngClass]="{'is-invalid': loanApplicationForm.get('creditScoreRange')?.invalid && loanApplicationForm.get('creditScoreRange')?.touched}">
+                <option value="">Select Credit Score Range</option>
+                <option *ngFor="let range of creditScoreRanges" [value]="range.value">{{ range.label }}</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="loanApplicationForm.get('creditScoreRange')?.invalid && loanApplicationForm.get('creditScoreRange')?.touched">
+                Credit score range is required
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="monthlyDebts" class="form-label">Monthly Debt Payments</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" id="monthlyDebts" formControlName="monthlyDebts" class="form-control"
+                  [ngClass]="{'is-invalid': loanApplicationForm.get('monthlyDebts')?.invalid && loanApplicationForm.get('monthlyDebts')?.touched}">
+                <div class="invalid-feedback" *ngIf="loanApplicationForm.get('monthlyDebts')?.invalid && loanApplicationForm.get('monthlyDebts')?.touched">
+                  Monthly debts must be a valid amount
+                </div>
+              </div>
+              <small class="form-text text-muted">Include car loans, credit cards, student loans, etc.</small>
+            </div>
+          </div>
+          
+          <!-- Financial Analysis Section -->
+          <div class="alert alert-info mt-3" *ngIf="loanApplicationForm.get('annualIncome')?.valid && loanApplicationForm.get('monthlyDebts')?.valid && loanApplicationForm.get('loanAmount')?.valid">
+            <h5>Financial Analysis</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <p class="mb-1"><strong>Debt-to-Income Ratio (DTI):</strong> {{ calculateDTI() | number:'1.1-1' }}%</p>
+                <p class="mb-1"><strong>Monthly Income:</strong> {{ formatCurrency(loanApplicationForm.get('annualIncome')?.value / 12) }}</p>
+              </div>
+              <div class="col-md-6">
+                <p class="mb-1"><strong>Disposable Income (monthly):</strong> {{ formatCurrency((loanApplicationForm.get('annualIncome')?.value / 12) - loanApplicationForm.get('monthlyDebts')?.value - calculateMonthlyPayment(loanApplicationForm.get('loanAmount')?.value, 0.05, loanApplicationForm.get('loanTerm')?.value)) }}</p>
+                <p [ngClass]="{'text-success': calculateDTI() < 43, 'text-warning': calculateDTI() >= 43 && calculateDTI() < 50, 'text-danger': calculateDTI() >= 50}">
+                  <strong>DTI Status:</strong> 
+                  <span *ngIf="calculateDTI() < 43">Good (Below 43%)</span>
+                  <span *ngIf="calculateDTI() >= 43 && calculateDTI() < 50">Borderline (43-50%)</span>
+                  <span *ngIf="calculateDTI() >= 50">High Risk (Above 50%)</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="d-flex justify-content-between mt-4">
+          <button *ngIf="currentStep > 1" type="button" class="btn btn-outline-secondary" (click)="previousStep()">
+            <i class="bi bi-arrow-left me-1"></i> Back
+          </button>
+          <div *ngIf="currentStep < 4" class="ms-auto">
+            <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isCurrentStepValid()">
+              Next <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+          <button *ngIf="currentStep === 4" type="submit" class="btn btn-success ms-auto" [disabled]="loanApplicationForm.invalid || isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            Submit Application
+          </button>
+        </div>
+        
+      </form>
+    </div>
+  </div>
+</div>

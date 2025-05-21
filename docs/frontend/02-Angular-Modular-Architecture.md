@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document details the modular architecture implemented in our Spring Boot Angular demo application. The architecture is designed to support large-scale enterprise applications with clear separation of concerns, scalability, and maintainability in mind - similar to the modular architecture principles used in enterprise Java applications.
+This document details the modular architecture implemented in our MortgagePro Loan Management application. The architecture is designed to support large-scale financial applications with clear separation of concerns, scalability, and maintainability in mind - similar to the modular architecture principles used in enterprise banking applications.
 
 ## Core/Feature/Shared Module Pattern
 
@@ -40,8 +40,9 @@ Feature modules encapsulate all functionality for a specific feature domain. Eac
 
 Our feature modules include:
 
-1. **Products Module**: Manages product listing, details, and operations
-2. **Auth Module**: Handles user authentication and registration
+1. **Loans Module**: Manages loan applications, dashboard, and detailed loan information
+2. **Loan Programs Module**: Showcases mortgage products, details, and provides rate calculators
+3. **Auth Module**: Handles user authentication and registration with role-based access for loan officers and customers
 
 ### Shared Module
 
@@ -116,9 +117,16 @@ const routes: Routes = [
     children: [
       { path: '', component: HomeComponent },
       { 
-        path: 'products', 
-        loadChildren: () => import('./features/products/products.module')
-          .then(m => m.ProductsModule) 
+        path: 'loans', 
+        loadChildren: () => import('./features/loans/loans.module')
+          .then(m => m.LoansModule),
+        canActivate: [AuthGuard] 
+      },
+      { 
+        path: 'loan-programs', 
+        loadChildren: () => import('./features/loan-programs/loan-programs.module')
+          .then(m => m.LoanProgramsModule),
+        canActivate: [AuthGuard] 
       }
     ]
   }
@@ -157,10 +165,11 @@ The modular architecture provides several significant benefits:
 
 ## Relation to Backend Microservices
 
-This modular frontend architecture aligns well with a backend microservices architecture:
+This modular frontend architecture aligns well with a backend microservices architecture for mortgage processing:
 
-- Feature modules can correspond to specific backend microservices
-- Services in feature modules can communicate with specific API gateways
-- Core services can handle cross-cutting concerns like authentication, similar to shared services in a microservices architecture
+- Feature modules correspond to specific backend microservices (loan application processing, loan program management)
+- Services in feature modules communicate with specific API gateways for loan operations
+- Core services handle cross-cutting concerns like authentication and audit logging, critical for financial applications
+- Event-driven architecture allows for asynchronous loan processing and status updates
 
-This creates a cohesive full-stack architecture with clear boundaries and responsibilities on both the frontend and backend.
+This creates a cohesive full-stack architecture with clear boundaries and responsibilities that supports the complex workflow of mortgage loan origination and servicing.

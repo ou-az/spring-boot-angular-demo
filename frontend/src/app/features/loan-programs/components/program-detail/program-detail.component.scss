@@ -1,0 +1,42 @@
+.program-detail-container {
+  padding: 2rem 0;
+}
+
+.program-icon-container {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(13, 110, 253, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  i {
+    font-size: 2rem;
+    color: #0d6efd;
+  }
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+  border-color: rgba(13, 110, 253, 0.25);
+}
+
+.alert {
+  border-left: 4px solid #0dcaf0;
+}
+
+.table {
+  th, td {
+    padding: 1rem;
+  }
+  
+  tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+}

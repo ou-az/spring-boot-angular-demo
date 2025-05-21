@@ -1,0 +1,108 @@
+.loan-application-container {
+  padding: 20px;
+
+  .step-content {
+    min-height: 400px;
+  }
+
+  .card {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+    border-radius: 10px;
+  }
+
+  .progress {
+    background-color: #e9ecef;
+    border-radius: 10px;
+    height: 8px;
+    
+    .progress-bar {
+      background-color: #007bff;
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+  }
+
+  .step-text {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+
+  .alert-info {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+    color: #495057;
+    border-left: 4px solid #17a2b8;
+  }
+
+  label.form-label {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  .form-control, .form-select {
+    padding: 0.6rem 0.75rem;
+    border-color: #ced4da;
+    
+    &:focus {
+      border-color: #80bdff;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+  }
+
+  .input-group-text {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    
+    &:hover {
+      background-color: #0069d9;
+      border-color: #0062cc;
+    }
+    
+    &:disabled {
+      background-color: #6c757d;
+      border-color: #6c757d;
+    }
+  }
+
+  .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    
+    &:hover {
+      background-color: #218838;
+      border-color: #1e7e34;
+    }
+  }
+
+  // Financial calculation section styling
+  .alert-info {
+    h5 {
+      margin-bottom: 1rem;
+      color: #212529;
+    }
+    
+    p {
+      font-size: 0.95rem;
+    }
+  }
+
+  // Status indicators
+  .text-success {
+    color: #28a745 !important;
+  }
+  
+  .text-warning {
+    color: #ffc107 !important;
+  }
+  
+  .text-danger {
+    color: #dc3545 !important;
+  }
+}

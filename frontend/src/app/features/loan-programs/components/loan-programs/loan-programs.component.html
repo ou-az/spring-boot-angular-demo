@@ -1,0 +1,126 @@
+<div class="loan-programs-container">
+  <div class="header-section bg-light p-4 mb-4 rounded">
+    <div class="container">
+      <h1 class="mb-2">Mortgage Loan Programs</h1>
+      <p class="text-muted">Explore our variety of mortgage loan options to find the right fit for your homebuying needs</p>
+    </div>
+  </div>
+
+  <!-- Featured Program Section -->
+  <div class="container mb-5">
+    <div class="card border-0 shadow-sm featured-program">
+      <div class="card-body p-4">
+        <div class="row">
+          <div class="col-md-8">
+            <span class="badge bg-primary mb-2">Featured Program</span>
+            <h2 class="card-title">{{ featuredProgram.name }}</h2>
+            <p class="card-text">{{ featuredProgram.description }}</p>
+            <div class="d-flex flex-wrap my-3">
+              <div class="me-4 mb-3">
+                <small class="text-muted d-block">Interest Rate Range</small>
+                <span class="fw-bold">{{ featuredProgram.interestRateRange }}</span>
+              </div>
+              <div class="me-4 mb-3">
+                <small class="text-muted d-block">Min Down Payment</small>
+                <span class="fw-bold">{{ formatPercentage(featuredProgram.minDownPayment) }}</span>
+              </div>
+              <div class="mb-3">
+                <small class="text-muted d-block">Terms Available</small>
+                <span class="fw-bold">{{ featuredProgram.termYears.join(', ') }} years</span>
+              </div>
+            </div>
+            <div class="mt-3">
+              <button class="btn btn-primary me-2" (click)="viewProgramDetails(featuredProgram.id)">
+                Learn More
+              </button>
+              <button class="btn btn-outline-primary" (click)="goToCalculator()">
+                <i class="bi bi-calculator me-1"></i> Rate Calculator
+              </button>
+            </div>
+          </div>
+          <div class="col-md-4 d-flex align-items-center justify-content-center">
+            <div class="featured-icon-container">
+              <i class="bi {{ featuredProgram.icon }} featured-icon"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- All Programs Section -->
+  <div class="container">
+    <h2 class="mb-4">All Loan Programs</h2>
+    
+    <div class="row">
+      <div class="col-md-4 mb-4" *ngFor="let program of loanPrograms">
+        <div class="card h-100 shadow-sm border-0 program-card">
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+              <div class="program-icon-container me-3">
+                <i class="bi {{ program.icon }}"></i>
+              </div>
+              <h3 class="card-title h5 mb-0">{{ program.name }}</h3>
+            </div>
+            <p class="card-text">{{ program.description }}</p>
+            <div class="program-details mb-3">
+              <div class="detail-item">
+                <small class="text-muted">Interest Rate</small>
+                <div>{{ program.interestRateRange }}</div>
+              </div>
+              <div class="detail-item">
+                <small class="text-muted">Down Payment</small>
+                <div>{{ formatPercentage(program.minDownPayment) }}+</div>
+              </div>
+              <div class="detail-item">
+                <small class="text-muted">Terms</small>
+                <div>{{ program.termYears.join(', ') }} years</div>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-outline-primary w-100" (click)="viewProgramDetails(program.id)">
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Information Section -->
+  <div class="container mt-5 mb-5">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4">
+            <h3 class="h4 mb-3">How to Choose the Right Mortgage</h3>
+            <p>Selecting the right mortgage is an important decision that impacts your financial future. Consider these factors:</p>
+            <ul class="mb-0">
+              <li>Your credit score and financial history</li>
+              <li>How long you plan to stay in the home</li>
+              <li>The amount of down payment you can afford</li>
+              <li>Whether you're a first-time homebuyer</li>
+              <li>Your eligibility for special programs (VA, FHA, etc.)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body p-4">
+            <h3 class="h4 mb-3">Next Steps</h3>
+            <p>Ready to move forward with your mortgage application?</p>
+            <ol class="mb-3">
+              <li>Use our rate calculator to estimate your monthly payments</li>
+              <li>Get pre-approved to understand your buying power</li>
+              <li>Complete our online application</li>
+              <li>Work with a dedicated loan officer to finalize your loan</li>
+            </ol>
+            <button class="btn btn-success" routerLink="/loans/application">
+              <i class="bi bi-file-earmark-text me-1"></i> Start Application
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

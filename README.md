@@ -1,20 +1,21 @@
-# Spring Boot Angular Demo
+# MortgagePro Loan Management Application
 
-A modern full-stack application demonstrating enterprise-grade architecture and best practices using Spring Boot and Angular.
+A modern full-stack mortgage loan management application demonstrating enterprise-grade architecture and best practices using Spring Boot and Angular.
 
 ## Project Overview
 
-This project is a comprehensive demonstration of building a full-stack application with:
+This project is a comprehensive mortgage loan management system with:
 
 - **Backend**: Spring Boot microservices with RESTful APIs
 - **Frontend**: Angular application with modular architecture
 - **Authentication**: JWT-based authentication with role-based authorization
-- **Database**: PostgreSQL with configurable connection settings
-- **Integration**: Kafka for event-driven architecture (optional)
+- **Database**: PostgreSQL for storing loan applications and user data
+- **Integration**: Kafka for loan processing events (optional)
 
 ## Technology Stack
 
 ### Backend
+
 - Java 17
 - Spring Boot 3.2
 - Spring Security with JWT
@@ -25,16 +26,18 @@ This project is a comprehensive demonstration of building a full-stack applicati
 - Testing with JUnit 5 and Mockito
 
 ### Frontend
+
 - Angular 16+
 - Standalone Components Architecture
 - Reactive Forms
 - RxJS for reactive programming
 - Modular design with Core/Feature/Shared pattern
 - Lazy-loaded feature modules
-- Angular Material UI components
-- Responsive design with Bootstrap
+- Bootstrap for responsive UI design
+- Financial calculation utilities
 
 ### DevOps
+
 - Docker containerization
 - Kubernetes deployment configurations
 - CI/CD with GitHub Actions
@@ -44,13 +47,15 @@ This project is a comprehensive demonstration of building a full-stack applicati
 The application follows a modern, scalable architecture:
 
 ### Backend Architecture
+
 - Microservices design with clear domain boundaries
 - RESTful API following best practices
 - Layered architecture (Controller → Service → Repository)
 - Comprehensive exception handling
-- Event-driven architecture using Kafka
+- Event-driven architecture using Kafka for loan processing events
 
 ### Frontend Architecture
+
 - Core/Feature/Shared module pattern
 - Standalone components for efficient bundling
 - Service-based state management
@@ -61,6 +66,7 @@ The application follows a modern, scalable architecture:
 ## Getting Started
 
 ### Prerequisites
+
 - Java 17+
 - Node.js 16+
 - Docker and Docker Compose (optional)
@@ -68,33 +74,37 @@ The application follows a modern, scalable architecture:
 
 ### Running the Application Locally
 
-#### Backend:
+#### Backend
+
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
 
-#### Frontend:
+#### Frontend
+
 ```bash
 cd frontend
 npm install
 ng serve
 ```
 
-### Using Docker:
+### Using Docker
+
 ```bash
 docker-compose up -d
 ```
 
 ## API Documentation
 
-The backend API documentation is available at `/swagger-ui.html` when the application is running.
+The backend API documentation is available at `/swagger-ui.html` when the application is running. It provides details on all available endpoints for loan management.
 
 ## Authentication
 
 The application implements JWT authentication with:
+
 - Secure token handling
-- Role-based authorization
+- Role-based authorization (Admin, Loan Officer, Customer)
 - HTTP-only cookies for token storage
 - Cross-Site Request Forgery (CSRF) protection
 
@@ -107,20 +117,25 @@ Comprehensive documentation is available in the `/docs` directory:
 - [Angular Design Patterns & Best Practices](./docs/03-Angular-Design-Patterns-Best-Practices.md)
 - [Angular Component Architecture](./docs/04-Angular-Component-Architecture.md)
 - [Angular State Management & Security](./docs/05-Angular-State-Management-Security.md)
+- [Mortgage Calculation Models](./docs/06-Mortgage-Calculation-Models.md)
 
 ## Features
 
 - User authentication and authorization
-- Product management (CRUD operations)
-- Responsive UI with Angular Material
+- Mortgage loan application processing
+- Loan programs showcase
+- Interactive mortgage calculator
+- Loan dashboard with analytics
+- Multi-step loan application form
+- Responsive UI with Bootstrap
 - Form validation with reactive forms
 - Error handling and notifications
 - Loading indicators and progress feedback
 
 ## Project Structure
 
-```
-spring-boot-angular-demo/
+```typescript
+mortgagepro-loan-management/
 ├── backend/                 # Spring Boot application
 │   ├── src/main/java        # Java source files
 │   ├── src/main/resources   # Configuration files
@@ -129,6 +144,9 @@ spring-boot-angular-demo/
 │   ├── src/app              # Application code
 │   │   ├── core             # Core module (services, guards, etc.)
 │   │   ├── features         # Feature modules
+│   │   │   ├── loans        # Loan management features
+│   │   │   ├── loan-programs # Mortgage product offerings
+│   │   │   └── auth         # Authentication features
 │   │   ├── shared           # Shared components and utilities
 │   │   └── layouts          # Application layouts
 │   └── src/assets           # Static assets

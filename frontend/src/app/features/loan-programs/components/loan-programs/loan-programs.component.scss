@@ -1,0 +1,66 @@
+.loan-programs-container {
+  padding-bottom: 2rem;
+}
+
+.featured-program {
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+
+.featured-icon-container {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: rgba(13, 110, 253, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.featured-icon {
+  font-size: 3rem;
+  color: #0d6efd;
+}
+
+.program-card {
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+
+.program-icon-container {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: rgba(13, 110, 253, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  i {
+    font-size: 1.5rem;
+    color: #0d6efd;
+  }
+}
+
+.program-details {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+  
+  .detail-item {
+    flex: 1;
+    min-width: 30%;
+    margin-bottom: 0.5rem;
+    
+    small {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+  }
+}

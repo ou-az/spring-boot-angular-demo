@@ -1,0 +1,149 @@
+<div class="loan-dashboard">
+  <!-- Dashboard Header -->
+  <div class="dashboard-header bg-light p-4 rounded mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h1 class="h3 mb-0">Loan Management Dashboard</h1>
+        <p class="text-muted">Overview of all mortgage applications and loans</p>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <button class="btn btn-primary" (click)="newLoanApplication()">
+          <i class="bi bi-plus-circle me-2"></i>New Loan Application
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metrics Section -->
+  <div class="row metrics-section mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-muted mb-2">Total Loan Amount</h6>
+          <h3>{{ formatCurrency(totalLoanAmount) }}</h3>
+          <small class="text-success"><i class="bi bi-graph-up"></i> 12% increase this month</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-muted mb-2">Average Interest Rate</h6>
+          <h3>{{ averageInterestRate }}%</h3>
+          <small class="text-danger"><i class="bi bi-graph-down"></i> 0.25% increase since last month</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-muted mb-2">Pending Applications</h6>
+          <h3>{{ pendingCount }}</h3>
+          <small class="text-muted"><i class="bi bi-clock"></i> Awaiting review</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-muted mb-2">Approved Loans</h6>
+          <h3>{{ approvedCount }}</h3>
+          <small class="text-success"><i class="bi bi-check-circle"></i> 2 new this week</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loan List Section -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white">
+      <div class="row align-items-center">
+        <div class="col-md-4">
+          <h5 class="mb-0">Loan Applications</h5>
+        </div>
+        <div class="col-md-4">
+          <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn" [ngClass]="{'btn-primary': selectedFilter === 'all', 'btn-outline-primary': selectedFilter !== 'all'}" (click)="filterLoans('all')">All</button>
+            <button type="button" class="btn" [ngClass]="{'btn-primary': selectedFilter === 'pending', 'btn-outline-primary': selectedFilter !== 'pending'}" (click)="filterLoans('pending')">Pending</button>
+            <button type="button" class="btn" [ngClass]="{'btn-primary': selectedFilter === 'processing', 'btn-outline-primary': selectedFilter !== 'processing'}" (click)="filterLoans('processing')">Processing</button>
+            <button type="button" class="btn" [ngClass]="{'btn-primary': selectedFilter === 'closing', 'btn-outline-primary': selectedFilter !== 'closing'}" (click)="filterLoans('closing')">Closing</button>
+            <button type="button" class="btn" [ngClass]="{'btn-primary': selectedFilter === 'funded', 'btn-outline-primary': selectedFilter !== 'funded'}" (click)="filterLoans('funded')">Funded</button>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search applications..." #searchInput (input)="searchTerm = searchInput.value">
+            <button class="btn btn-outline-secondary" type="button" (click)="searchLoans()">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover m-0">
+          <thead class="table-light">
+            <tr>
+              <th>Loan ID</th>
+              <th>Customer Name</th>
+              <th>Loan Amount</th>
+              <th>Type</th>
+              <th>Interest Rate</th>
+              <th>Status</th>
+              <th>Application Date</th>
+              <th>Last Updated</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let loan of loans$ | async">
+              <td><span class="badge bg-secondary">#{{ loan.id }}</span></td>
+              <td>{{ loan.customerName }}</td>
+              <td>{{ formatCurrency(loan.loanAmount) }}</td>
+              <td>{{ loan.type }}</td>
+              <td>{{ loan.interestRate }}%</td>
+              <td>
+                <span class="badge"
+                  [ngClass]="{
+                    'bg-warning': loan.status === 'pending',
+                    'bg-info': loan.status === 'processing',
+                    'bg-primary': loan.status === 'approved',
+                    'bg-success': loan.status === 'funded',
+                    'bg-secondary': loan.status === 'closing'
+                  }"
+                >
+                  {{ loan.status | titlecase }}
+                </span>
+              </td>
+              <td>{{ loan.applicationDate | date:'MM/dd/yyyy' }}</td>
+              <td>{{ loan.lastUpdated | date:'MM/dd/yyyy' }}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="viewLoanDetail(loan.id)">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" title="Send notification">
+                  <i class="bi bi-envelope"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card-footer bg-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="text-muted">Showing 5 of 5 loans</span>
+        <nav>
+          <ul class="pagination pagination-sm m-0">
+            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>

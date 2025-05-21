@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document outlines the key design patterns and best practices implemented in our Spring Boot Angular demo application. These patterns mirror many of the same enterprise-level architectural principles you've successfully implemented in Java applications, including the LeaseHawk Telephony Routing Platform and your Spring Boot microservices work.
+This document outlines the key design patterns and best practices implemented in our MortgagePro Loan Management application. These patterns mirror many of the same enterprise-level architectural principles used in financial and banking applications, focusing on security, reliability, and maintainability.
 
 ## Design Patterns
 
@@ -14,29 +14,32 @@ Similar to the Data Access Layer (DAL) in Java applications, our services implem
 @Injectable({
   providedIn: 'root'
 })
-export class ProductService {
-  private apiUrl = `${environment.apiUrl}/products`;
+export class LoanApplicationService {
+  private apiUrl = `${environment.apiUrl}/loans`;
 
   constructor(private http: HttpClient) { }
 
-  getProducts(filters?: { category?: string, search?: string }): Observable<Product[]> {
+  getLoanApplications(filters?: { status?: string, borrowerId?: string, search?: string }): Observable<LoanApplication[]> {
     let params = new HttpParams();
     
     if (filters) {
-      if (filters.category) {
-        params = params.append('category', filters.category);
+      if (filters.status) {
+        params = params.append('status', filters.status);
+      }
+      if (filters.borrowerId) {
+        params = params.append('borrowerId', filters.borrowerId);
       }
       if (filters.search) {
         params = params.append('search', filters.search);
       }
     }
 
-    return this.http.get<Product[]>(this.apiUrl, { params }).pipe(
+    return this.http.get<LoanApplication[]>(this.apiUrl, { params }).pipe(
       catchError(this.handleError)
     );
   }
   
-  // Other CRUD methods
+  // Other loan processing methods
 }
 ```
 
@@ -54,9 +57,17 @@ Using RxJS, we implement the Observer pattern extensively, similar to Java's Obs
 private currentUserSubject = new BehaviorSubject<User | null>(null);
 public currentUser$ = this.currentUserSubject.asObservable();
 
-// In a component
+// In a loan dashboard component
 this.authService.currentUser$.subscribe(user => {
   this.isLoggedIn = !!user;
+  this.isLoanOfficer = user?.roles.includes('LOAN_OFFICER');
+  
+  // Load appropriate loans based on user role
+  if (this.isLoanOfficer) {
+    this.loadAllLoans();
+  } else {
+    this.loadUserLoans(user?.id);
+  }
 });
 ```
 
@@ -96,17 +107,23 @@ Services often act as facades that simplify complex operations for components:
 @Injectable({
   providedIn: 'root'
 })
-export class CheckoutService {
+export class LoanSubmissionService {
   constructor(
-    private cartService: CartService,
-    private paymentService: PaymentService,
-    private orderService: OrderService
+    private loanApplicationService: LoanApplicationService,
+    private documentService: DocumentService,
+    private creditCheckService: CreditCheckService,
+    private notificationService: NotificationService
   ) { }
 
-  completeCheckout(paymentDetails: PaymentDetails): Observable<Order> {
-    return this.cartService.getCart().pipe(
-      switchMap(cart => this.paymentService.processPayment(cart.total, paymentDetails)),
-      switchMap(paymentResult => this.orderService.createOrder(paymentResult.transactionId))
+  submitLoanApplication(loanId: string, finalDocuments: Document[]): Observable<LoanApplication> {
+    return this.documentService.uploadDocuments(loanId, finalDocuments).pipe(
+      switchMap(() => this.creditCheckService.requestCreditCheck(loanId)),
+      switchMap(creditCheck => this.loanApplicationService.updateLoanStatus(loanId, 'SUBMITTED', { creditScore: creditCheck.score })),
+      tap(loan => this.notificationService.notify(`Loan application #${loan.applicationNumber} has been successfully submitted`)),
+      catchError(error => {
+        this.notificationService.notifyError('Failed to submit loan application');
+        return throwError(error);
+      })
     );
   }
 }
@@ -250,17 +267,26 @@ this.productForm = this.fb.group({
 Using TypeScript interfaces to define clear contracts for data structures:
 
 ```typescript
-export interface Product {
-  id?: number;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  imageUrl?: string;
-  inStock: boolean;
-  quantity: number;
+export interface LoanApplication {
+  id?: string;
+  applicationNumber: string;
+  borrowerId: string;
+  status: LoanStatus; // 'DRAFT' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED'
+  loanType: LoanType; // 'CONVENTIONAL' | 'FHA' | 'VA' | 'JUMBO' | 'USDA'
+  propertyAddress: Address;
+  propertyValue: number;
+  loanAmount: number;
+  downPayment: number;
+  interestRate?: number;
+  loanTerm: number; // in years
+  monthlyPayment?: number;
+  dti?: number; // debt-to-income ratio
+  ltv?: number; // loan-to-value ratio
+  documents?: Document[];
   createdAt?: Date;
   updatedAt?: Date;
+  submittedAt?: Date;
+  closingDate?: Date;
 }
 ```
 
@@ -318,7 +344,7 @@ Implementing lazy loading for feature modules to reduce initial bundle size:
 ```typescript
 const routes: Routes = [
   {
-    path: 'products',
+    path: 'loans',
     loadChildren: () => import('./features/products/products.module').then(m => m.ProductsModule)
   }
 ];
@@ -378,21 +404,37 @@ Using BehaviorSubjects in services for simple state management:
 @Injectable({
   providedIn: 'root'
 })
-export class CartService {
-  private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
-  public cartItems$ = this.cartItemsSubject.asObservable();
+export class LoanApplicationStateService {
+  private loanApplicationSubject = new BehaviorSubject<LoanApplication | null>(null);
+  public loanApplication$ = this.loanApplicationSubject.asObservable();
   
-  addToCart(product: Product, quantity: number = 1): void {
-    const currentCart = this.cartItemsSubject.value;
-    const existingItemIndex = currentCart.findIndex(item => item.product.id === product.id);
-    
-    if (existingItemIndex > -1) {
-      const updatedCart = [...currentCart];
-      updatedCart[existingItemIndex].quantity += quantity;
-      this.cartItemsSubject.next(updatedCart);
-    } else {
-      this.cartItemsSubject.next([...currentCart, { product, quantity }]);
+  private loanStepsSubject = new BehaviorSubject<{
+    currentStep: number;
+    totalSteps: number;
+    stepsCompleted: boolean[];
+  }>({ currentStep: 1, totalSteps: 4, stepsCompleted: [false, false, false, false] });
+  public loanSteps$ = this.loanStepsSubject.asObservable();
+  
+  updateLoanApplication(updates: Partial<LoanApplication>): void {
+    const currentApp = this.loanApplicationSubject.value;
+    if (currentApp) {
+      this.loanApplicationSubject.next({ ...currentApp, ...updates });
+      this.updateStepCompletion();
     }
+  }
+  
+  moveToNextStep(): void {
+    const currentSteps = this.loanStepsSubject.value;
+    if (currentSteps.currentStep < currentSteps.totalSteps) {
+      this.loanStepsSubject.next({
+        ...currentSteps,
+        currentStep: currentSteps.currentStep + 1
+      });
+    }
+  }
+  
+  private updateStepCompletion(): void {
+    // Logic to determine which steps are complete based on application data
   }
 }
 ```
@@ -490,33 +532,33 @@ describe('ProductListComponent', () => {
 Using jasmine's spyOn for service testing:
 
 ```typescript
-describe('ProductService', () => {
-  let service: ProductService;
+describe('LoanApplicationService', () => {
+  let service: LoanApplicationService;
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [ProductService]
+      providers: [LoanApplicationService]
     });
-    service = TestBed.inject(ProductService);
+    service = TestBed.inject(LoanApplicationService);
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('should retrieve products', () => {
-    const mockProducts: Product[] = [/* mock data */];
+  it('should retrieve loan applications', () => {
+    const mockLoans: LoanApplication[] = [/* mock loan applications */];
     
-    service.getProducts().subscribe(products => {
-      expect(products).toEqual(mockProducts);
+    service.getLoanApplications().subscribe(loans => {
+      expect(loans).toEqual(mockLoans);
     });
     
-    const req = httpMock.expectOne(`${environment.apiUrl}/products`);
+    const req = httpMock.expectOne(`${environment.apiUrl}/loans`);
     expect(req.request.method).toBe('GET');
-    req.flush(mockProducts);
+    req.flush(mockLoans);
   });
 });
 ```
 
 ## Conclusion
 
-These design patterns and best practices create a robust, maintainable, and performant Angular application. By following established patterns familiar to enterprise Java development, the application maintains a clean architecture that's easy to extend and maintain. Many of these patterns directly mirror concepts from your Java development experience, particularly with Spring Boot microservices and the LeaseHawk Telephony Routing Platform.
+These design patterns and best practices create a robust, maintainable, and secure mortgage loan management application. By following established patterns from financial software development, the application maintains a clean architecture with a special focus on data integrity, security, and audit requirements essential for financial applications. The patterns ensure the application can scale to handle complex mortgage workflows while maintaining high performance and reliability requirements expected in financial systems.

@@ -1,0 +1,288 @@
+<div class="calculator-container">
+  <div class="container">
+    <div class="header-section bg-light p-4 mb-4 rounded">
+      <div class="container">
+        <h1 class="mb-2">Mortgage Payment Calculator</h1>
+        <p class="text-muted">Estimate your monthly mortgage payment including principal, interest, taxes, and insurance</p>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-lg-7 mb-4 mb-lg-0">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white">
+            <h2 class="h5 mb-0">Enter Loan Details</h2>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="calculatorForm" (ngSubmit)="calculatePayment()">
+              <div class="row mb-3">
+                <div class="col-md-6 mb-3 mb-md-0">
+                  <label for="homePrice" class="form-label">Home Price</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input 
+                      type="number" 
+                      class="form-control" 
+                      id="homePrice" 
+                      formControlName="homePrice"
+                      min="50000"
+                      step="1000"
+                    >
+                  </div>
+                  <div class="invalid-feedback" *ngIf="calculatorForm.get('homePrice')?.invalid && calculatorForm.get('homePrice')?.touched">
+                    Please enter a valid home price (min $50,000).
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="downPayment" class="form-label">Down Payment</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input 
+                      type="number" 
+                      class="form-control" 
+                      id="downPayment" 
+                      formControlName="downPayment"
+                      min="0"
+                      step="1000"
+                    >
+                  </div>
+                  <div class="invalid-feedback" *ngIf="calculatorForm.get('downPayment')?.invalid && calculatorForm.get('downPayment')?.touched">
+                    Please enter a valid down payment amount.
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6 mb-3 mb-md-0">
+                  <label for="loanType" class="form-label">Loan Type</label>
+                  <select class="form-select" id="loanType" formControlName="loanType">
+                    <option *ngFor="let type of loanTypes" [value]="type.id">{{ type.name }}</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="loanTerm" class="form-label">Loan Term</label>
+                  <select class="form-select" id="loanTerm" formControlName="loanTerm">
+                    <option *ngFor="let term of terms" [value]="term.value">{{ term.label }}</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6 mb-3 mb-md-0">
+                  <label for="interestRate" class="form-label">Interest Rate (%)</label>
+                  <div class="input-group">
+                    <input 
+                      type="number" 
+                      class="form-control" 
+                      id="interestRate" 
+                      formControlName="interestRate"
+                      min="0.1"
+                      max="20"
+                      step="0.125"
+                    >
+                    <span class="input-group-text">%</span>
+                  </div>
+                  <div class="invalid-feedback" *ngIf="calculatorForm.get('interestRate')?.invalid && calculatorForm.get('interestRate')?.touched">
+                    Please enter a valid interest rate (0.1% - 20%).
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="creditScore" class="form-label">Credit Score</label>
+                  <input 
+                    type="number" 
+                    class="form-control" 
+                    id="creditScore" 
+                    formControlName="creditScore"
+                    min="300"
+                    max="850"
+                  >
+                  <div class="invalid-feedback" *ngIf="calculatorForm.get('creditScore')?.invalid && calculatorForm.get('creditScore')?.touched">
+                    Please enter a valid credit score (300-850).
+                  </div>
+                </div>
+              </div>
+              
+              <div class="additional-fields mb-3">
+                <button 
+                  class="btn btn-link p-0 text-decoration-none" 
+                  type="button" 
+                  data-bs-toggle="collapse" 
+                  data-bs-target="#additionalFields" 
+                  aria-expanded="false" 
+                  aria-controls="additionalFields">
+                  <i class="bi bi-plus-circle me-1"></i> Additional Expenses (Optional)
+                </button>
+                
+                <div class="collapse mt-3" id="additionalFields">
+                  <div class="card card-body bg-light border-0">
+                    <div class="row">
+                      <div class="col-md-4 mb-3 mb-md-0">
+                        <label for="propertyTax" class="form-label">Property Tax (Annual)</label>
+                        <div class="input-group">
+                          <span class="input-group-text">$</span>
+                          <input 
+                            type="number" 
+                            class="form-control" 
+                            id="propertyTax" 
+                            formControlName="propertyTax"
+                            min="0"
+                            step="100"
+                          >
+                        </div>
+                      </div>
+                      <div class="col-md-4 mb-3 mb-md-0">
+                        <label for="homeInsurance" class="form-label">Home Insurance (Annual)</label>
+                        <div class="input-group">
+                          <span class="input-group-text">$</span>
+                          <input 
+                            type="number" 
+                            class="form-control" 
+                            id="homeInsurance" 
+                            formControlName="homeInsurance"
+                            min="0"
+                            step="100"
+                          >
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <label for="hoa" class="form-label">HOA Fees (Monthly)</label>
+                        <div class="input-group">
+                          <span class="input-group-text">$</span>
+                          <input 
+                            type="number" 
+                            class="form-control" 
+                            id="hoa" 
+                            formControlName="hoa"
+                            min="0"
+                            step="10"
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary" (click)="resetCalculator()">
+                  <i class="bi bi-arrow-repeat me-1"></i> Reset
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="calculatorForm.invalid">
+                  <i class="bi bi-calculator me-1"></i> Calculate
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-5">
+        <!-- Results Panel -->
+        <div class="results-panel" *ngIf="showResults && results">
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+              <h3 class="h5 mb-0">Your Estimated Payment</h3>
+            </div>
+            <div class="card-body">
+              <div class="total-payment text-center mb-4">
+                <span class="text-muted">Monthly Payment</span>
+                <h2 class="display-5 fw-bold">{{ formatCurrency(results.totalMonthlyPayment) }}</h2>
+              </div>
+              
+              <div class="loan-details mb-4">
+                <div class="row">
+                  <div class="col-6 mb-3">
+                    <div class="text-muted small">Loan Amount</div>
+                    <div class="fw-bold">{{ formatCurrency(results.loanAmount) }}</div>
+                  </div>
+                  <div class="col-6 mb-3">
+                    <div class="text-muted small">Down Payment</div>
+                    <div class="fw-bold">{{ formatCurrency(calculatorForm.value.downPayment) }} ({{ formatPercentage(results.downPaymentPercentage) }})</div>
+                  </div>
+                  <div class="col-6 mb-3">
+                    <div class="text-muted small">LTV Ratio</div>
+                    <div class="fw-bold">{{ formatPercentage(results.ltv) }}</div>
+                  </div>
+                  <div class="col-6 mb-3">
+                    <div class="text-muted small">Loan Term</div>
+                    <div class="fw-bold">{{ calculatorForm.value.loanTerm }} years</div>
+                  </div>
+                </div>
+              </div>
+              
+              <h4 class="h6 mb-3">Payment Breakdown</h4>
+              
+              <!-- Payment Pie Chart (could be implemented with a chart library in a real app) -->
+              <div class="payment-breakdown mb-3">
+                <div class="row" *ngFor="let item of results.paymentBreakdown">
+                  <div class="col-8 mb-2">
+                    <div class="d-flex align-items-center">
+                      <div class="payment-bar me-2" [style.width.%]="item.percentage"></div>
+                      <div>{{ item.label }}</div>
+                    </div>
+                  </div>
+                  <div class="col-4 text-end">
+                    <div>{{ formatCurrency(item.value) }}</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mt-4">
+                <div class="alert alert-info mb-0">
+                  <i class="bi bi-info-circle me-2"></i>
+                  This is only an estimate. Contact a loan officer for personalized rates.
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="d-grid">
+            <a routerLink="/loans/application" class="btn btn-success">
+              <i class="bi bi-file-earmark-text me-1"></i> Start Loan Application
+            </a>
+          </div>
+        </div>
+        
+        <!-- Tips Panel (shown when results are not visible) -->
+        <div class="card border-0 shadow-sm" *ngIf="!showResults">
+          <div class="card-header bg-white">
+            <h3 class="h5 mb-0">Mortgage Tips</h3>
+          </div>
+          <div class="card-body">
+            <div class="tip-item mb-3">
+              <h4 class="h6 d-flex align-items-center">
+                <i class="bi bi-piggy-bank text-primary me-2"></i>
+                Save for a 20% down payment
+              </h4>
+              <p class="mb-0 small">A 20% down payment helps you avoid private mortgage insurance (PMI) and qualify for better rates.</p>
+            </div>
+            
+            <div class="tip-item mb-3">
+              <h4 class="h6 d-flex align-items-center">
+                <i class="bi bi-graph-up text-primary me-2"></i>
+                Improve your credit score
+              </h4>
+              <p class="mb-0 small">A higher credit score can significantly lower your interest rate and save you thousands over the life of your loan.</p>
+            </div>
+            
+            <div class="tip-item mb-3">
+              <h4 class="h6 d-flex align-items-center">
+                <i class="bi bi-calculator text-primary me-2"></i>
+                Consider a 15-year term
+              </h4>
+              <p class="mb-0 small">While monthly payments will be higher, you'll build equity faster and save significantly on interest.</p>
+            </div>
+            
+            <div class="tip-item">
+              <h4 class="h6 d-flex align-items-center">
+                <i class="bi bi-cash-stack text-primary me-2"></i>
+                Factor in all costs
+              </h4>
+              <p class="mb-0 small">Remember to account for property taxes, insurance, HOA fees, and maintenance when budgeting for your home.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

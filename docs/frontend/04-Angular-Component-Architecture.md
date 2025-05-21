@@ -2,22 +2,25 @@
 
 ## Introduction
 
-This document details the component architecture implemented in our Spring Boot Angular demo application. The component design philosophy mirrors many of the same principles you've applied in enterprise Java applications, such as the modular architecture in the LeaseHawk Telephony Routing Platform, and reflects modern front-end architectural best practices.
+This document details the component architecture implemented in our MortgagePro Loan Management application. The component design philosophy mirrors principles found in enterprise financial applications, focusing on security, data integrity, and user experience that meets the complex requirements of mortgage processing systems while following modern front-end architectural best practices.
 
 ## Component Hierarchy
 
 Our application follows a hierarchical component structure that promotes reusability, testability, and maintainability:
 
-```
+```text
 ├── App Component (Root)
 │   ├── Main Layout Component
 │   │   ├── Header Component
 │   │   ├── <Router Outlet>
 │   │   │   ├── Home Component
-│   │   │   ├── Product List Component
-│   │   │   │   ├── Product Item Component
-│   │   │   ├── Product Detail Component
-│   │   │   ├── Product Form Component
+│   │   │   ├── Loan Programs Component
+│   │   │   │   ├── Program Item Component
+│   │   │   ├── Program Detail Component
+│   │   │   ├── Rate Calculator Component
+│   │   │   ├── Loan Dashboard Component
+│   │   │   ├── Loan Application Component
+│   │   │   ├── Loan Detail Component
 │   │   │   ├── Login Component
 │   │   └── Footer Component
 │   └── Notification Component (Global)
@@ -33,26 +36,37 @@ Container components connect to services, manage state, and pass data to present
 
 ```typescript
 @Component({
-  selector: 'app-product-list',
-  templateUrl: './product-list.component.html'
+  selector: 'app-loan-dashboard',
+  templateUrl: './loan-dashboard.component.html'
 })
-export class ProductListComponent implements OnInit {
-  products$!: Observable<Product[]>;
+export class LoanDashboardComponent implements OnInit {
+  loans$!: Observable<LoanApplication[]>;
+  statuses: string[] = ['ALL', 'DRAFT', 'SUBMITTED', 'IN_REVIEW', 'APPROVED', 'DENIED'];
+  selectedStatus = 'ALL';
   
-  constructor(private productService: ProductService) { }
+  constructor(
+    private loanService: LoanApplicationService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
-    this.loadProducts();
+    this.loadLoans();
   }
 
-  loadProducts(): void {
-    this.products$ = this.productService.getProducts();
+  loadLoans(): void {
+    const filters = this.selectedStatus !== 'ALL' ? { status: this.selectedStatus } : {};
+    this.loans$ = this.loanService.getLoanApplications(filters);
   }
 
-  deleteProduct(id: number): void {
-    if (confirm('Are you sure you want to delete this product?')) {
-      this.productService.deleteProduct(id).subscribe(() => {
-        this.loadProducts();
+  onStatusChange(status: string): void {
+    this.selectedStatus = status;
+    this.loadLoans();
+  }
+
+  archiveLoan(id: string): void {
+    if (confirm('Are you sure you want to archive this loan application?')) {
+      this.loanService.updateLoanStatus(id, 'ARCHIVED').subscribe(() => {
+        this.loadLoans();
       });
     }
   }
@@ -65,19 +79,30 @@ Presentational components focus solely on UI presentation based on inputs and em
 
 ```typescript
 @Component({
-  selector: 'app-product-card',
-  templateUrl: './product-card.component.html',
+  selector: 'app-loan-card',
+  templateUrl: './loan-card.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProductCardComponent {
-  @Input() product!: Product;
-  @Output() delete = new EventEmitter<number>();
-  @Output() view = new EventEmitter<number>();
-  @Output() edit = new EventEmitter<number>();
+export class LoanCardComponent {
+  @Input() loan!: LoanApplication;
+  @Output() archive = new EventEmitter<string>();
+  @Output() view = new EventEmitter<string>();
+  @Output() continue = new EventEmitter<string>();
 
-  onDelete(event: Event): void {
+  get statusClass(): string {
+    const statusMap: {[key: string]: string} = {
+      'DRAFT': 'status-draft',
+      'SUBMITTED': 'status-submitted',
+      'IN_REVIEW': 'status-review',
+      'APPROVED': 'status-approved',
+      'DENIED': 'status-denied'
+    };
+    return statusMap[this.loan.status] || 'status-default';
+  }
+
+  onArchive(event: Event): void {
     event.stopPropagation();
-    this.delete.emit(this.product.id);
+    this.archive.emit(this.loan.id);
   }
 }
 ```
@@ -125,11 +150,12 @@ Components communicate with their direct children through inputs and outputs, si
 
 ```typescript
 // Parent template
-<app-product-card 
-  [product]="product" 
-  (delete)="onDelete($event)"
-  (edit)="onEdit($event)">
-</app-product-card>
+<app-loan-card
+  [loan]="loan"
+  (archive)="onArchive($event)"
+  (continue)="onContinue($event)"
+  (view)="onView($event)">
+</app-loan-card>
 
 // Child component
 @Component({ ... })
@@ -178,7 +204,8 @@ For complex applications, a centralized state management approach can be used, s
 ```typescript
 // Store definition
 export interface AppState {
-  products: ProductState;
+  loans: LoanState;
+  loanPrograms: LoanProgramState;
   auth: AuthState;
 }
 
@@ -223,12 +250,12 @@ Component styles are encapsulated to prevent global CSS conflicts, using Angular
 
 ```typescript
 @Component({
-  selector: 'app-product-card',
-  templateUrl: './product-card.component.html',
-  styleUrls: ['./product-card.component.scss'],
+  selector: 'app-loan-card',
+  templateUrl: './loan-card.component.html',
+  styleUrls: ['./loan-card.component.scss'],
   encapsulation: ViewEncapsulation.Emulated // Default
 })
-export class ProductCardComponent { ... }
+export class LoanCardComponent { ... }
 ```
 
 ## Component Templates
@@ -254,11 +281,11 @@ Business logic is kept out of templates, similar to keeping logic out of JSPs in
 
 ```html
 <!-- Good: Using methods/properties from the component -->
-<div *ngIf="isProductAvailable">In Stock</div>
+<div *ngIf="isLoanAvailable">Available</div>
 
 <!-- Bad: Complex logic in template -->
-<div *ngIf="product.stock > 0 && !product.discontinued && product.releaseDate < today">
-  In Stock
+<div *ngIf="loan.status === 'APPROVED' && loan.loanAmount > 0 && loan.interestRate < 5">
+  Eligible for Refinance
 </div>
 ```
 
@@ -335,35 +362,43 @@ Components are tested using Angular's TestBed and component harnesses:
 ### Unit Tests
 
 ```typescript
-describe('ProductCardComponent', () => {
-  let component: ProductCardComponent;
-  let fixture: ComponentFixture<ProductCardComponent>;
+describe('LoanCardComponent', () => {
+  let component: LoanCardComponent;
+  let fixture: ComponentFixture<LoanCardComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ProductCardComponent],
+      declarations: [LoanCardComponent],
       imports: [RouterTestingModule]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ProductCardComponent);
+    fixture = TestBed.createComponent(LoanCardComponent);
     component = fixture.componentInstance;
-    component.product = {
-      id: 1,
-      name: 'Test Product',
-      price: 99.99,
-      description: 'Test description',
-      category: 'Test',
-      inStock: true,
-      quantity: 10
+    component.loan = {
+      id: 'loan123',
+      applicationNumber: 'APP-2023-001',
+      borrowerId: 'user456',
+      status: 'IN_REVIEW',
+      loanType: 'CONVENTIONAL',
+      propertyAddress: {
+        street: '123 Main St',
+        city: 'Boston',
+        state: 'MA',
+        zipCode: '02108'
+      },
+      propertyValue: 450000,
+      loanAmount: 360000,
+      downPayment: 90000,
+      loanTerm: 30
     };
     fixture.detectChanges();
   });
 
-  it('should emit delete event when delete button is clicked', () => {
-    spyOn(component.delete, 'emit');
-    const deleteButton = fixture.debugElement.query(By.css('.delete-btn'));
-    deleteButton.triggerEventHandler('click', new Event('click'));
-    expect(component.delete.emit).toHaveBeenCalledWith(1);
+  it('should emit archive event when archive button is clicked', () => {
+    spyOn(component.archive, 'emit');
+    const archiveButton = fixture.debugElement.query(By.css('.archive-btn'));
+    archiveButton.triggerEventHandler('click', new Event('click'));
+    expect(component.archive.emit).toHaveBeenCalledWith('loan123');
   });
 });
 ```
@@ -371,34 +406,40 @@ describe('ProductCardComponent', () => {
 ### Integration Tests
 
 ```typescript
-describe('ProductListComponent', () => {
-  let component: ProductListComponent;
-  let fixture: ComponentFixture<ProductListComponent>;
-  let productService: jasmine.SpyObj<ProductService>;
+describe('LoanDashboardComponent', () => {
+  let component: LoanDashboardComponent;
+  let fixture: ComponentFixture<LoanDashboardComponent>;
+  let loanService: jasmine.SpyObj<LoanApplicationService>;
+  let authService: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
-    const productServiceSpy = jasmine.createSpyObj('ProductService', ['getProducts', 'deleteProduct']);
+    const loanServiceSpy = jasmine.createSpyObj('LoanApplicationService', 
+      ['getLoanApplications', 'updateLoanStatus']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', 
+      ['getCurrentUser'], { currentUser$: of({ id: 'user123', roles: ['BORROWER'] }) });
     
     await TestBed.configureTestingModule({
-      declarations: [ProductListComponent, ProductCardComponent],
+      declarations: [LoanDashboardComponent, LoanCardComponent],
       imports: [RouterTestingModule],
       providers: [
-        { provide: ProductService, useValue: productServiceSpy }
+        { provide: LoanApplicationService, useValue: loanServiceSpy },
+        { provide: AuthService, useValue: authServiceSpy }
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ProductListComponent);
+    fixture = TestBed.createComponent(LoanDashboardComponent);
     component = fixture.componentInstance;
-    productService = TestBed.inject(ProductService) as jasmine.SpyObj<ProductService>;
+    loanService = TestBed.inject(LoanApplicationService) as jasmine.SpyObj<LoanApplicationService>;
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     
     // Setup mock data
-    productService.getProducts.and.returnValue(of([/* mock products */]));
+    loanService.getLoanApplications.and.returnValue(of([/* mock loan applications */]));
     fixture.detectChanges();
   });
 
-  it('should display products when loaded', () => {
-    const productElements = fixture.debugElement.queryAll(By.css('.product-card'));
-    expect(productElements.length).toBe(/* expected number of products */);
+  it('should display loan applications when loaded', () => {
+    const loanElements = fixture.debugElement.queryAll(By.css('.loan-card'));
+    expect(loanElements.length).toBe(/* expected number of loans */);
   });
 });
 ```
@@ -410,11 +451,11 @@ Components are built with accessibility in mind:
 ```html
 <!-- Accessible button with aria attributes -->
 <button 
-  aria-label="Delete product" 
-  [attr.aria-disabled]="isDeleting" 
-  (click)="onDelete()">
-  <i class="bi bi-trash"></i>
-  <span class="visually-hidden">Delete</span>
+  aria-label="Archive loan application" 
+  [attr.aria-disabled]="isArchiving" 
+  (click)="onArchive()">
+  <i class="bi bi-archive"></i>
+  <span class="visually-hidden">Archive</span>
 </button>
 ```
 
@@ -424,8 +465,8 @@ Components support internationalization through Angular's i18n:
 
 ```html
 <!-- Translatable text -->
-<h1 i18n="@@productTitle">Product List</h1>
-<button i18n="@@addToCartButton">Add to Cart</button>
+<h1 i18n="@@loanDashboardTitle">Loan Applications</h1>
+<button i18n="@@applyNowButton">Apply Now</button>
 ```
 
 ## Responsive Component Design
@@ -435,14 +476,14 @@ Components are designed to be responsive using:
 ```html
 <!-- Responsive grid using Bootstrap -->
 <div class="row">
-  <div class="col-12 col-md-6 col-lg-4" *ngFor="let product of products">
-    <app-product-card [product]="product"></app-product-card>
+  <div class="col-12 col-md-6 col-lg-4" *ngFor="let loan of loans">
+    <app-loan-card [loan]="loan"></app-loan-card>
   </div>
 </div>
 ```
 
 ## Conclusion
 
-The component architecture implemented in this Angular application follows modern frontend best practices while maintaining principles familiar to enterprise Java developers. The clear separation of concerns, hierarchical structure, and well-defined communication patterns create a scalable, maintainable codebase that mirrors the same architectural principles found in enterprise backend systems.
+The component architecture implemented in our MortgagePro Loan Management application follows modern frontend best practices while incorporating domain-specific patterns necessary for financial applications. The clear separation of concerns, hierarchical structure, and well-defined communication patterns create a scalable, maintainable, and secure codebase that meets the complex requirements of mortgage processing systems.
 
-This approach creates a cohesive full-stack architecture where the frontend components have clear responsibilities and boundaries, just like the microservices and modules in your backend experience. When interviewing for roles like the Staff Software Engineer position at Plexus Worldwide or Lead Software Engineer at Wells Fargo, you can demonstrate how this unified architectural approach enables efficient development across the entire application stack.
+This architecture places special emphasis on data integrity, audit trails, and security features critical in financial applications. The component design allows for easy implementation of role-based access control, workflow management for loan processing, and the complex form validations needed in mortgage applications. By following these architectural principles, the application delivers a robust user experience while maintaining the strict compliance and security standards expected in the financial industry.

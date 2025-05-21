@@ -2,14 +2,14 @@
 
 ## Introduction
 
-This document provides a comprehensive overview of the architecture used in our Spring Boot Angular demo application. The frontend architecture follows modern Angular best practices with a focus on maintainability, scalability, and performance. This document describes the high-level architecture, component organization, and design patterns used throughout the application.
+This document provides a comprehensive overview of the architecture used in our MortgagePro Loan Management application. The frontend architecture follows modern Angular best practices with a focus on maintainability, scalability, and performance. This document describes the high-level architecture, component organization, and design patterns used throughout the mortgage loan management system.
 
 ## Architecture Principles
 
 The Angular application is built upon the following key architectural principles:
 
 1. **Modular Design**: Using feature modules and core/shared modules to organize code
-2. **Unidirectional Data Flow**: Following Angular's recommended data flow patterns 
+2. **Unidirectional Data Flow**: Following Angular's recommended data flow patterns
 3. **Reactive Programming**: Leveraging RxJS and Observables for asynchronous operations
 4. **Single Responsibility**: Each component, service, and module has a clearly defined responsibility
 5. **Lazy Loading**: Feature modules are loaded on-demand to improve initial load time
@@ -19,28 +19,14 @@ The Angular application is built upon the following key architectural principles
 
 The application follows a hybrid architecture combining the best aspects of both traditional module-based and modern standalone component architectures:
 
-```
-├── App (Root Module)
-│   ├── Core (Core Module)
-│   │   ├── Services
-│   │   ├── Interceptors
-│   │   ├── Guards
-│   │   └── Models
-│   ├── Shared (Shared Module)
-│   │   ├── Components
-│   │   ├── Directives
-│   │   └── Pipes
-│   ├── Features
-│   │   ├── Home (Standalone Component)
-│   │   ├── Products (Feature Module)
-│   │   │   ├── Components
-│   │   │   ├── Services
-│   │   │   └── Models
-│   │   └── Auth (Feature Module)
-│   │       ├── Components
-│   │       └── Services
-│   └── Layouts
-│       └── Main Layout (Standalone Component)
+```text
+Angular App
+|-- Core (singleton services, interceptors)
+|-- Features (feature modules)
+|   |-- Home
+|   |-- Loans
+|   |-- Authentication
+|-- Shared (reusable components, pipes, directives)
 ```
 
 ## Key Architectural Components
@@ -115,7 +101,8 @@ The application is built using the Angular CLI, which provides optimized builds 
 
 Future architectural improvements could include:
 
-1. Implementing NgRx for state management in complex features
-2. Adding a more comprehensive testing strategy
-3. Implementing micro-frontend architecture for larger scale applications
+1. Implementing NgRx for state management in complex loan processing workflows
+2. Adding a more comprehensive testing strategy for financial calculations
+3. Implementing real-time loan status updates with WebSockets
 4. Server-side rendering for improved SEO and initial load performance
+5. Integration with credit reporting APIs for automated borrower qualification
